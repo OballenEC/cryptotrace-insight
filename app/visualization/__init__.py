@@ -1,0 +1,1 @@
+# Renderizado visual del grafo

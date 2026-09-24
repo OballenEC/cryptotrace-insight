@@ -1,0 +1,1 @@
+# Modelos de datos normalizados (Transaction, Finding)

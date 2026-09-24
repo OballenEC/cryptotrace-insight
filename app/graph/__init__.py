@@ -1,0 +1,1 @@
+# Construcción del grafo de transacciones
