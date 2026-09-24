@@ -41,7 +41,7 @@ Desarrollar una herramienta open-source en Python para explorar actividad blockc
 - Modelo `Transaction` normalizado como contrato entre capas
 - Uso de dataclasses para modelos
 
-**Git commit**: `[pendiente]`
+**Git commit**: `8c7a39f`
 
 **Próximo paso**: Crear venv, instalar dependencias, inicializar Git.
 
