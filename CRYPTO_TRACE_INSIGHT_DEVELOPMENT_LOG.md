@@ -161,13 +161,41 @@ Desarrollar una herramienta open-source en Python para explorar actividad blockc
 
 ---
 
-### ⏳ P7 — Graph Visualization
-**Estado**: Pendiente
+### ✅ P7 — Graph Visualization (PyVis)
+**Estado**: Completado
+
+**Implementado**:
+- `app/visualization/graph_view.py`: Renderizado interactivo con PyVis
+- Integración en `app/main.py` con `st.components.v1.html()`
+- Nodos coloreados:
+  - Rojo: dirección analizada
+  - Naranja: top 3 direcciones con más conexiones
+  - Azul: direcciones normales
+- Grosor de aristas proporcional al número de transacciones
+- Física de grafos con ForceAtlas2
+
+**Decisiones importantes**:
+- Tema oscuro (`bgcolor="#0E1117"`) para coincidir con Streamlit
+- Aristas curvadas (`curvedCW`) para mejor visibilidad
+- Tooltips con dirección completa y número de conexiones
+
+**Evidencia**:
+- Grafo interactivo funcional con dirección de Vitalik
+- Zoom, arrastrar nodos y hover funcionando
 
 ---
 
-### ⏳ P8 — Error Handling + Tests
-**Estado**: Pendiente
+### ✅ P8 — Tests + Error Handling
+**Estado**: Completado
+
+**Implementado**:
+- `tests/test_validator.py`: 4 tests
+- `tests/test_normalizer.py`: 3 tests
+- `tests/test_heuristics.py`: 6 tests
+- Total: 13 tests unitarios
+
+**Resultado**:
+- 13/13 tests pasando en 0.32s
 
 ---
 
