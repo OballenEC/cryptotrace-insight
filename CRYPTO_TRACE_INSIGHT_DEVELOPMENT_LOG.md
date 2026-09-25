@@ -238,6 +238,25 @@ Desarrollar una herramienta open-source en Python para explorar actividad blockc
 - Un modo offline es esencial para demos en vivo sin depender de la red
 - Timeout agresivo evita que la UI se quede colgada
 
+---### ⚠️ P13 — Network Issue with Etherscan API
+**Estado**: Documentado (no bloqueante)
+
+**Problema**:
+- A partir del 24/09/2026, la conexión a `api.etherscan.io` desde la red local comenzó a dar timeout.
+- El error es `ConnectTimeoutError`, no relacionado con la API key ni con el código.
+- El DNS resuelve correctamente (varias IPs), pero la conexión TCP no se completa.
+- Posible causa: rate limit por IP o bloqueo del ISP/router.
+
+**Mitigación implementada**:
+- Modo offline con dataset previamente consultado (`data/sample_ethereum_transactions.json`).
+- Timeout reducido a 8 segundos para evitar bloqueos largos.
+- La demo del hackathon usará modo offline para garantizar reproducibilidad.
+
+**Aprendizaje**:
+- Depender de APIs externas en una demo en vivo es riesgoso.
+- Un modo offline es esencial para hackathons.
+- Documentar limitaciones conocidas es parte del profesionalismo.
+
 ---
 **Implementado**:
 - `app/api/stellar.py`: Cliente de Horizon (transacciones y pagos)
