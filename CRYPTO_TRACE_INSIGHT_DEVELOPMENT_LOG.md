@@ -199,13 +199,23 @@ Desarrollar una herramienta open-source en Python para explorar actividad blockc
 
 ---
 
-### ⏳ P9 — Stellar Integration (opcional)
-**Estado**: Pendiente
+### ✅ P9 — Offline Dataset
+**Estado**: Completado
+
+**Implementado**:
+- `data/sample_ethereum_transactions.json` con 50 transacciones de Vitalik
+- Respaldo para demo si Etherscan falla o hay rate limit
+- 63 KB de datos reales guardados
 
 ---
 
-### ⏳ P10 — Documentation + Demo
-**Estado**: Pendiente
+### ✅ P10 — Documentation
+**Estado**: Completado
+
+**Implementado**:
+- README.md completo con: features, stack, instalación, uso, arquitectura, tests, limitaciones, roadmap
+- `.env.example` como plantilla pública
+- Development Log completo (P0 a P10)
 
 ---
 
