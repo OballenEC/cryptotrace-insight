@@ -47,8 +47,13 @@ Desarrollar una herramienta open-source en Python para explorar actividad blockc
 
 ---
 
-### ⏳ P1 — Ethereum API + Normalization
-**Estado**: Pendiente
+### 🟡 P1 — Ethereum API + Normalization
+**Estado**: En progreso
+
+**Implementado hasta ahora**:
+- Modelo `Transaction` normalizado en `app/models/transaction.py`
+
+**Próximo paso**: Validación de direcciones Ethereum.
 
 ---
 
