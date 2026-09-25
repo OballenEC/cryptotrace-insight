@@ -49,3 +49,14 @@ def normalize_address(address: str) -> str:
     if not address.startswith("0x"):
         address = "0x" + address
     return address.lower()
+
+def is_valid_stellar_address(address: str) -> bool:
+    """
+    Verifica si una cadena tiene el formato de una cuenta Stellar válida.
+
+    Las cuentas Stellar empiezan con 'G' y tienen 56 caracteres.
+    """
+    if not isinstance(address, str):
+        return False
+    address = address.strip()
+    return len(address) == 56 and address.startswith("G")

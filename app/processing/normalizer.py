@@ -11,37 +11,31 @@ from typing import Optional
 from app.models.transaction import Transaction
 
 
+# ============================================================
+# Ethereum
+# ============================================================
+
 def normalize_ethereum_transaction(
     raw_tx: dict, analyzed_address: str
 ) -> Optional[Transaction]:
     """
     Convierte una transacción cruda de Etherscan a nuestro modelo normalizado.
-
-    Args:
-        raw_tx: Diccionario con la transacción cruda de Etherscan.
-        analyzed_address: Dirección que estamos analizando (para determinar direction).
-
-    Returns:
-        Transaction normalizada, o None si los datos son inválidos.
     """
     try:
         sender = raw_tx.get("from", "").lower()
         receiver = raw_tx.get("to", "").lower()
         analyzed = analyzed_address.lower()
 
-        # Determinar dirección relativa a la dirección analizada
         if sender == analyzed:
             direction = "outgoing"
         elif receiver == analyzed:
             direction = "incoming"
         else:
-            direction = "unknown"  # No debería pasar si filtramos por dirección
+            direction = "unknown"
 
-        # El valor viene en wei (1 ETH = 10^18 wei)
         value_wei = int(raw_tx.get("value", 0))
         amount_eth = value_wei / 1e18
 
-        # Timestamp viene como string Unix
         timestamp = datetime.fromtimestamp(int(raw_tx.get("timeStamp", 0)))
 
         return Transaction(
@@ -60,22 +54,68 @@ def normalize_ethereum_transaction(
 
 
 def normalize_ethereum_transactions(
-    raw_transactions: list[dict], analyzed_address: str
-) -> list[Transaction]:
+    raw_transactions: list, analyzed_address: str
+) -> list:
     """
     Normaliza una lista de transacciones crudas de Etherscan.
-    Descarta las que no se pueden normalizar.
-
-    Args:
-        raw_transactions: Lista de transacciones crudas de Etherscan.
-        analyzed_address: Dirección que estamos analizando.
-
-    Returns:
-        Lista de Transaction normalizadas.
     """
     normalized = []
     for raw_tx in raw_transactions:
         tx = normalize_ethereum_transaction(raw_tx, analyzed_address)
+        if tx is not None:
+            normalized.append(tx)
+    return normalized
+
+
+# ============================================================
+# Stellar
+# ============================================================
+
+def normalize_stellar_payment(
+    raw_payment: dict, analyzed_address: str
+) -> Optional[Transaction]:
+    """
+    Convierte un pago crudo de Stellar a nuestro modelo Transaction.
+    """
+    try:
+        sender = raw_payment.get("from", "")
+        receiver = raw_payment.get("to", "")
+
+        if sender == analyzed_address:
+            direction = "outgoing"
+        elif receiver == analyzed_address:
+            direction = "incoming"
+        else:
+            direction = "unknown"
+
+        amount = float(raw_payment.get("amount", 0))
+        asset = raw_payment.get("asset_code", "XLM")
+
+        created_at = raw_payment.get("created_at", "")
+        timestamp = datetime.fromisoformat(created_at.replace("Z", "+00:00"))
+
+        return Transaction(
+            sender=sender,
+            receiver=receiver,
+            amount=amount,
+            timestamp=timestamp,
+            tx_hash=raw_payment.get("transaction_hash", ""),
+            asset=asset,
+            network="stellar",
+            direction=direction,
+            raw_data=raw_payment,
+        )
+    except (ValueError, TypeError, KeyError):
+        return None
+
+
+def normalize_stellar_payments(raw_payments: list, analyzed_address: str) -> list:
+    """
+    Normaliza una lista de pagos crudos de Stellar.
+    """
+    normalized = []
+    for raw in raw_payments:
+        tx = normalize_stellar_payment(raw, analyzed_address)
         if tx is not None:
             normalized.append(tx)
     return normalized
