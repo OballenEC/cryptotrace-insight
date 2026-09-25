@@ -127,6 +127,30 @@ if analyze_button:
     st.markdown(f"**Dirección analizada:** `{address}`")
     st.markdown(f"**Red:** {network}")
 
+    
+    st.divider()
+
+    st.subheader("🕸️ Grafo de transacciones")
+    st.markdown(
+        "Visualización interactiva de las relaciones entre direcciones. "
+        "El nodo **rojo** es la dirección analizada. "
+        "El grosor de las flechas representa el volumen de transacciones."
+    )
+
+    with st.spinner("Generando grafo interactivo..."):
+        from app.visualization.graph_view import render_graph_html
+
+        degrees = dict(graph.degree())
+        top_nodes = sorted(degrees, key=degrees.get, reverse=True)[:3]
+
+        graph_html = render_graph_html(
+            graph,
+            analyzed_address=address,
+            highlight_addresses=top_nodes,
+        )
+
+        st.components.v1.html(graph_html, height=620, scrolling=False)
+
     st.divider()
 
     st.subheader("🔍 Hallazgos")
