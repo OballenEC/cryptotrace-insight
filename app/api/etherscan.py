@@ -57,7 +57,7 @@ def fetch_transactions(address: str, max_results: int = 100) -> list[dict]:
     }
 
     try:
-        response = requests.get(ETHERSCAN_BASE_URL, params=params, timeout=15)
+        response = requests.get(ETHERSCAN_BASE_URL, params=params, timeout=8)
         response.raise_for_status()
     except requests.RequestException as e:
         raise EtherscanError(f"Error de conexión con Etherscan: {e}")

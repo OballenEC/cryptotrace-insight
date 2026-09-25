@@ -6,6 +6,7 @@ consultar su actividad y visualizar los patrones detectados.
 """
 
 import sys
+import json
 from pathlib import Path
 
 # Añadir la raíz del proyecto al path para que los imports funcionen
@@ -75,6 +76,12 @@ with col2:
         index=0,
     )
 
+use_offline = st.checkbox(
+    "Usar datos offline (modo demo)",
+    value=False,
+    help="Carga un dataset previamente guardado en lugar de consultar la API.",
+)
+
 analyze_button = st.button("🔎 Analizar", type="primary", use_container_width=True)
 
 
@@ -111,12 +118,24 @@ if analyze_button:
     # Consulta de datos según la red
     # --------------------------------------------------------
     if network == "Ethereum":
-        with st.spinner("Consultando transacciones en Etherscan..."):
-            try:
-                raw_txs = fetch_transactions(address, max_results=100)
-            except EtherscanError as e:
-                st.error(f"Error al consultar Etherscan: {e}")
-                st.stop()
+        if use_offline:
+            with st.spinner("Cargando dataset offline..."):
+                try:
+                    with open("data/sample_ethereum_transactions.json", "r") as f:
+                        raw_txs = json.load(f)
+                except FileNotFoundError:
+                    st.error(
+                        "No se encontró el dataset offline. "
+                        "Ejecuta el script para generarlo primero."
+                    )
+                    st.stop()
+        else:
+            with st.spinner("Consultando transacciones en Etherscan..."):
+                try:
+                    raw_txs = fetch_transactions(address, max_results=100)
+                except EtherscanError as e:
+                    st.error(f"Error al consultar Etherscan: {e}")
+                    st.stop()
 
         if not raw_txs:
             st.info("Esta dirección no tiene transacciones registradas.")
