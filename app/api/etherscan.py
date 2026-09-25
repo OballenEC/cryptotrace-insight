@@ -1,5 +1,5 @@
 """
-Cliente de la API de Etherscan.
+Cliente de la API de Etherscan V2.
 
 Consulta las transacciones normales (envíos y recepciones de ETH)
 de una dirección Ethereum.
@@ -14,7 +14,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 ETHERSCAN_API_KEY = os.getenv("ETHERSCAN_API_KEY")
-ETHERSCAN_BASE_URL = "https://api.etherscan.io/api"
+# URL base de la API V2
+ETHERSCAN_BASE_URL = "https://api.etherscan.io/v2/api"
+# Chain ID de Ethereum Mainnet
+ETHEREUM_CHAIN_ID = 1
 
 
 class EtherscanError(Exception):
@@ -43,6 +46,7 @@ def fetch_transactions(address: str, max_results: int = 100) -> list[dict]:
         )
 
     params = {
+        "chainid": ETHEREUM_CHAIN_ID,
         "module": "account",
         "action": "txlist",
         "address": address,
@@ -60,12 +64,24 @@ def fetch_transactions(address: str, max_results: int = 100) -> list[dict]:
 
     data = response.json()
 
-    # Etherscan devuelve status "0" con message "No transactions found" cuando no hay datos
     if data.get("status") == "0":
         message = data.get("message", "")
+        result = data.get("result", "")
+
         if message == "No transactions found":
             return []
-        raise EtherscanError(f"Error de Etherscan: {message}")
+
+        if "rate limit" in str(result).lower():
+            raise EtherscanError(
+                "Rate limit alcanzado. Espera unos segundos y vuelve a intentar."
+            )
+
+        if "invalid api key" in str(result).lower():
+            raise EtherscanError(
+                "API Key inválida. Verifica tu clave en .env."
+            )
+
+        raise EtherscanError(f"Error de Etherscan: {message} - {result}")
 
     results = data.get("result", [])
     if not isinstance(results, list):
