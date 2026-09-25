@@ -217,6 +217,53 @@ Desarrollar una herramienta open-source en Python para explorar actividad blockc
 - `.env.example` como plantilla pública
 - Development Log completo (P0 a P10)
 
+### ✅ P11 — Stellar Integration
+**Estado**: Completado
+
+### ✅ P12 — Offline Demo Mode
+**Estado**: Completado
+
+**Implementado**:
+- Checkbox "Usar datos offline (modo demo)" en la UI
+- Carga de `data/sample_ethereum_transactions.json` en lugar de consultar la API
+- Timeout de Etherscan reducido de 15s a 8s para evitar bloqueos
+- Script `test_debug_eth.py` para diagnóstico offline
+
+**Decisión estratégica**:
+- La demo del hackathon usará modo offline para garantizar reproducibilidad
+- En producción, la app consulta Etherscan en tiempo real
+
+**Aprendizajes**:
+- Etherscan puede tardar mucho o bloquear la IP temporalmente por rate limit
+- Un modo offline es esencial para demos en vivo sin depender de la red
+- Timeout agresivo evita que la UI se quede colgada
+
+---
+**Implementado**:
+- `app/api/stellar.py`: Cliente de Horizon (transacciones y pagos)
+- `normalize_stellar_payment()` en `app/processing/normalizer.py`
+- `is_valid_stellar_address()` en `app/processing/validator.py`
+- Selector de red en la UI (Ethereum / Stellar)
+- Lógica condicional en `app/main.py` para consultar la red elegida
+
+**Decisiones importantes**:
+- Uso de Horizon por practicidad en hackathon (documentado que migrará a Stellar RPC)
+- Endpoint `payments()` en lugar de `transactions()` porque devuelve from/to/amount directamente
+- Validación de formato: G + 55 caracteres
+- El modelo `Transaction` y el grafo son agnósticos a la red
+
+**Evidencia**:
+- Cuenta de prueba: GASOCN...EDW
+- 2 pagos normalizados y mostrados en la UI
+- Grafo interactivo funcional con datos de Stellar
+
+**Aprendizajes**:
+- El SDK `stellar-sdk` usa Builder pattern (`.for_account().limit().call()`)
+- Horizon devuelve `_embedded.records` con los datos
+- Stellar usa ISO timestamps con `Z` al final (UTC)
+
+---
+
 ---
 
 ## 🧠 Aprendizajes y notas
