@@ -129,13 +129,35 @@ Desarrollar una herramienta open-source en Python para explorar actividad blockc
 
 ---
 
-### ⏳ P5 — Heuristic: Similar Amounts Pattern
-**Estado**: Pendiente
+### ✅ P5 — Heuristic: Similar Amounts Pattern
+**Estado**: Completado
+
+**Implementado**:
+- `app/heuristics/similar_amounts.py`: Detección de montos similares
+- Umbral: ≥4 transferencias con diferencia ≤5%
+- Algoritmo de agrupación por similitud
 
 ---
 
-### ⏳ P6 — Streamlit UI
-**Estado**: Pendiente
+### ✅ P6 — Streamlit UI
+**Estado**: Completado
+
+**Implementado**:
+- `app/main.py`: Interfaz web completa
+- Formulario de entrada: dirección + red
+- Validación de dirección en tiempo real
+- Visualización de resumen con 4 métricas
+- Sección de hallazgos con tarjetas expandibles
+- Manejo de errores (dirección inválida, rate limit, sin transacciones)
+
+**Evidencia**:
+- Vitalik: 100 transacciones, 17 direcciones únicas, 17 relaciones, 2 hallazgos
+- Binance: 100 transacciones, 15 direcciones únicas, 14 relaciones, 2 hallazgos
+
+**Aprendizajes**:
+- Streamlit bloquea la terminal mientras corre (usar segunda terminal para Git)
+- `sys.path.insert` necesario para imports absolutos en Streamlit
+- Codificación UTF-8 crítica para caracteres especiales
 
 ---
 
