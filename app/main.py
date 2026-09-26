@@ -241,7 +241,7 @@ if analyze_button:
             ):
                 st.markdown(f"**ID:** `{finding.rule_id}`")
                 st.markdown(f"**Explicación:** {finding.explanation}")
-                st.markdown(f"**Limitación:** {finding.limitacion}")
+                st.markdown(f"**Limitación:** {finding.limitation}")
                 if finding.related_transactions:
                     st.markdown(
                         f"**Transacciones relacionadas:** "
