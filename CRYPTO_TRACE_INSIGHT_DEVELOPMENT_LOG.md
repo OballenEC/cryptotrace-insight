@@ -10,7 +10,7 @@ Bitácora de desarrollo del proyecto para GOYA HACK 2026.
 - **Evento**: GOYA HACK 2026 (CriptoUNAM — Facultad de Ingeniería, UNAM)
 - **Autor**: Oscar Ballen
 - **Repositorio**: [GitHub](https://github.com/tu-usuario/cryptotrace-insight)
-- **Stack**: Python, Streamlit, NetworkX, PyVis, Etherscan API
+- **Stack**: Python, Streamlit, NetworkX, PyVis, Etherscan API, Stellar SDK
 - **Duración del sprint**: ~12 horas
 
 ---
@@ -32,7 +32,7 @@ Desarrollar una herramienta open-source en Python para explorar actividad blockc
 - `.gitignore`, `.env`, `requirements.txt`
 - `README.md` inicial
 - Entorno virtual con dependencias (streamlit, requests, networkx, pyvis, python-dotenv, pytest)
-- Repositorio Git inicializado con commits iniciales
+- Repositorio Git inicializado
 
 **Decisiones importantes**:
 - Arquitectura modular por capas
@@ -45,25 +45,19 @@ Desarrollar una herramienta open-source en Python para explorar actividad blockc
 **Estado**: Completado
 
 **Implementado**:
-- `app/models/transaction.py`: Modelo `Transaction` normalizado con dataclass
-- `app/processing/validator.py`: Validación de direcciones Ethereum con regex
-- `app/api/etherscan.py`: Cliente de Etherscan API V2 con manejo de errores
+- `app/models/transaction.py`: Modelo `Transaction` normalizado
+- `app/processing/validator.py`: Validación de direcciones Ethereum
+- `app/api/etherscan.py`: Cliente de Etherscan API V2
 - `app/processing/normalizer.py`: Conversión de transacciones crudas a `Transaction`
 
 **Decisiones importantes**:
-- Migración a Etherscan API V2 (requiere `chainid` obligatorio)
+- Migración a Etherscan API V2 (requiere `chainid`)
 - Conversión de `value` de wei a ETH (`/ 1e18`)
-- Determinación de `direction` (incoming/outgoing) según dirección analizada
-- Manejo específico de errores: rate limit, API key inválida, sin transacciones
-
-**Aprendizajes**:
-- La API V1 de Etherscan fue deprecada; ahora es obligatorio usar V2 con `chainid`
-- Python 3.14 funciona correctamente con el stack elegido
-- Las direcciones de exchanges tienen miles de transacciones (JSON gigante)
+- Determinación de `direction` según dirección analizada
+- Manejo específico de errores
 
 **Evidencia**:
-- Consulta exitosa a dirección de Vitalik Buterin: 10 transacciones normalizadas
-- Outgoing: 9, Incoming: 1
+- Consulta a Vitalik Buterin: 10 transacciones normalizadas
 
 ---
 
@@ -71,18 +65,12 @@ Desarrollar una herramienta open-source en Python para explorar actividad blockc
 **Estado**: Completado
 
 **Implementado**:
-- `app/graph/builder.py`: Construcción de grafo dirigido con NetworkX
-- `graph_summary()`: Resumen con nodos, aristas y transacciones totales
-- Aristas acumulativas: si hay múltiples transacciones entre mismas direcciones, se acumulan montos y se guardan todos los hashes
+- `app/graph/builder.py`: Grafo dirigido con NetworkX
+- `graph_summary()`: Resumen con nodos, aristas y transacciones
 
 **Decisiones importantes**:
-- Grafo dirigido (`nx.DiGraph`) porque las transacciones tienen dirección
-- Cada arista guarda: `total_amount`, `tx_count`, `tx_hashes`, `timestamps`
-- Los hashes y timestamps se conservan para evidencia
-
-**Evidencia**:
-- Consulta a Vitalik: 10 transacciones → 4 nodos, 3 aristas
-- Ejemplo: `0xd8da... → 0x7e2d...` (6 transacciones, 0.00037 ETH)
+- Grafo dirigido (`nx.DiGraph`)
+- Aristas acumulativas con hashes y timestamps para evidencia
 
 ---
 
@@ -90,22 +78,13 @@ Desarrollar una herramienta open-source en Python para explorar actividad blockc
 **Estado**: Completado
 
 **Implementado**:
-- `app/models/finding.py`: Modelo `Finding` para representar hallazgos
-- `app/heuristics/base.py`: Interfaz abstracta `Heuristic`
-- `app/heuristics/fanout.py`: Detección de direcciones que envían a ≥5 destinatarios únicos
+- `app/models/finding.py`: Modelo `Finding`
+- `app/heuristics/base.py`: Interfaz abstracta
+- `app/heuristics/fanout.py`: Umbral ≥5 destinatarios únicos
 
 **Decisiones importantes**:
-- Umbral configurable: `FANOUT_THRESHOLD = 5`
-- Los hallazgos incluyen: explicación, limitación, evidencia (hashes)
 - Lenguaje cuidadoso: "patrón observado", nunca "fraude detectado"
-
-**Aprendizajes**:
-- El paginador de Git (`less`) atrapa al usuario; usar `git --no-pager log` o `git config --global core.pager ""`
-- La carpeta se llamaba `huristics` (typo); corregido a `heuristics`
-
-**Evidencia**:
-- Dirección de Vitalik: 0 hallazgos (no tiene fan-out)
-- Heurística funcional y probada
+- Hallazgos incluyen explicación y limitación
 
 ---
 
@@ -113,19 +92,9 @@ Desarrollar una herramienta open-source en Python para explorar actividad blockc
 **Estado**: Completado
 
 **Implementado**:
-- `app/heuristics/velocity.py`: Detección de ráfagas de transacciones
-- Umbrales: `VELOCITY_THRESHOLD_COUNT = 5`, `VELOCITY_THRESHOLD_MINUTES = 10`
-- Algoritmo de ventana deslizante sobre timestamps ordenados
-- Análisis tanto de transacciones entrantes como salientes
-
-**Decisiones importantes**:
-- Se analizan tanto in-edges como out-edges de la dirección analizada
-- Se identifica el intervalo con mayor concentración de transacciones
-- Se reporta el período exacto (start → end)
-
-**Aprendizajes**:
-- Ventana deslizante es más eficiente que revisar todas las combinaciones
-- Los timestamps deben ordenarse antes del análisis
+- `app/heuristics/velocity.py`: Ráfagas de transacciones
+- Umbrales: ≥5 transacciones en ≤10 minutos
+- Ventana deslizante sobre timestamps ordenados
 
 ---
 
@@ -133,7 +102,7 @@ Desarrollar una herramienta open-source en Python para explorar actividad blockc
 **Estado**: Completado
 
 **Implementado**:
-- `app/heuristics/similar_amounts.py`: Detección de montos similares
+- `app/heuristics/similar_amounts.py`: Montos similares
 - Umbral: ≥4 transferencias con diferencia ≤5%
 - Algoritmo de agrupación por similitud
 
@@ -145,19 +114,16 @@ Desarrollar una herramienta open-source en Python para explorar actividad blockc
 **Implementado**:
 - `app/main.py`: Interfaz web completa
 - Formulario de entrada: dirección + red
-- Validación de dirección en tiempo real
 - Visualización de resumen con 4 métricas
 - Sección de hallazgos con tarjetas expandibles
-- Manejo de errores (dirección inválida, rate limit, sin transacciones)
 
 **Evidencia**:
-- Vitalik: 100 transacciones, 17 direcciones únicas, 17 relaciones, 2 hallazgos
-- Binance: 100 transacciones, 15 direcciones únicas, 14 relaciones, 2 hallazgos
+- Vitalik: 100 transacciones, 17 direcciones, 2 hallazgos
+- Binance: 100 transacciones, 15 direcciones, 2 hallazgos
 
 **Aprendizajes**:
-- Streamlit bloquea la terminal mientras corre (usar segunda terminal para Git)
 - `sys.path.insert` necesario para imports absolutos en Streamlit
-- Codificación UTF-8 crítica para caracteres especiales
+- Streamlit bloquea la terminal mientras corre (usar segunda terminal para Git)
 
 ---
 
@@ -165,23 +131,12 @@ Desarrollar una herramienta open-source en Python para explorar actividad blockc
 **Estado**: Completado
 
 **Implementado**:
-- `app/visualization/graph_view.py`: Renderizado interactivo con PyVis
-- Integración en `app/main.py` con `st.components.v1.html()`
-- Nodos coloreados:
-  - Rojo: dirección analizada
-  - Naranja: top 3 direcciones con más conexiones
-  - Azul: direcciones normales
-- Grosor de aristas proporcional al número de transacciones
-- Física de grafos con ForceAtlas2
-
-**Decisiones importantes**:
-- Tema oscuro (`bgcolor="#0E1117"`) para coincidir con Streamlit
-- Aristas curvadas (`curvedCW`) para mejor visibilidad
-- Tooltips con dirección completa y número de conexiones
+- `app/visualization/graph_view.py`: Renderizado interactivo
+- Nodos coloreados: rojo (analizada), naranja (top 3), azul (resto)
+- Grosor de aristas proporcional al volumen
 
 **Evidencia**:
-- Grafo interactivo funcional con dirección de Vitalik
-- Zoom, arrastrar nodos y hover funcionando
+- Grafo interactivo funcional con zoom y hover
 
 ---
 
@@ -192,10 +147,7 @@ Desarrollar una herramienta open-source en Python para explorar actividad blockc
 - `tests/test_validator.py`: 4 tests
 - `tests/test_normalizer.py`: 3 tests
 - `tests/test_heuristics.py`: 6 tests
-- Total: 13 tests unitarios
-
-**Resultado**:
-- 13/13 tests pasando en 0.32s
+- Total: **13 tests unitarios pasando en 0.28s**
 
 ---
 
@@ -203,9 +155,8 @@ Desarrollar una herramienta open-source en Python para explorar actividad blockc
 **Estado**: Completado
 
 **Implementado**:
-- `data/sample_ethereum_transactions.json` con 50 transacciones de Vitalik
-- Respaldo para demo si Etherscan falla o hay rate limit
-- 63 KB de datos reales guardados
+- `data/sample_ethereum_transactions.json` con 50 transacciones
+- 63 KB de datos reales guardados como respaldo
 
 ---
 
@@ -213,63 +164,27 @@ Desarrollar una herramienta open-source en Python para explorar actividad blockc
 **Estado**: Completado
 
 **Implementado**:
-- README.md completo con: features, stack, instalación, uso, arquitectura, tests, limitaciones, roadmap
+- `README.md` completo
 - `.env.example` como plantilla pública
-- Development Log completo (P0 a P10)
+- Development Log completo
+
+---
 
 ### ✅ P11 — Stellar Integration
 **Estado**: Completado
 
-### ✅ P12 — Offline Demo Mode
-**Estado**: Completado
-
-**Implementado**:
-- Checkbox "Usar datos offline (modo demo)" en la UI
-- Carga de `data/sample_ethereum_transactions.json` en lugar de consultar la API
-- Timeout de Etherscan reducido de 15s a 8s para evitar bloqueos
-- Script `test_debug_eth.py` para diagnóstico offline
-
-**Decisión estratégica**:
-- La demo del hackathon usará modo offline para garantizar reproducibilidad
-- En producción, la app consulta Etherscan en tiempo real
-
-**Aprendizajes**:
-- Etherscan puede tardar mucho o bloquear la IP temporalmente por rate limit
-- Un modo offline es esencial para demos en vivo sin depender de la red
-- Timeout agresivo evita que la UI se quede colgada
-
----### ⚠️ P13 — Network Issue with Etherscan API
-**Estado**: Documentado (no bloqueante)
-
-**Problema**:
-- A partir del 24/09/2026, la conexión a `api.etherscan.io` desde la red local comenzó a dar timeout.
-- El error es `ConnectTimeoutError`, no relacionado con la API key ni con el código.
-- El DNS resuelve correctamente (varias IPs), pero la conexión TCP no se completa.
-- Posible causa: rate limit por IP o bloqueo del ISP/router.
-
-**Mitigación implementada**:
-- Modo offline con dataset previamente consultado (`data/sample_ethereum_transactions.json`).
-- Timeout reducido a 8 segundos para evitar bloqueos largos.
-- La demo del hackathon usará modo offline para garantizar reproducibilidad.
-
-**Aprendizaje**:
-- Depender de APIs externas en una demo en vivo es riesgoso.
-- Un modo offline es esencial para hackathons.
-- Documentar limitaciones conocidas es parte del profesionalismo.
-
----
 **Implementado**:
 - `app/api/stellar.py`: Cliente de Horizon (transacciones y pagos)
 - `normalize_stellar_payment()` en `app/processing/normalizer.py`
 - `is_valid_stellar_address()` en `app/processing/validator.py`
 - Selector de red en la UI (Ethereum / Stellar)
-- Lógica condicional en `app/main.py` para consultar la red elegida
+- Lógica condicional en `app/main.py`
 
 **Decisiones importantes**:
 - Uso de Horizon por practicidad en hackathon (documentado que migrará a Stellar RPC)
 - Endpoint `payments()` en lugar de `transactions()` porque devuelve from/to/amount directamente
 - Validación de formato: G + 55 caracteres
-- El modelo `Transaction` y el grafo son agnósticos a la red
+- El modelo `Transaction` y el grafo son **agnósticos a la red**
 
 **Evidencia**:
 - Cuenta de prueba: GASOCN...EDW
@@ -283,6 +198,45 @@ Desarrollar una herramienta open-source en Python para explorar actividad blockc
 
 ---
 
+### ✅ P12 — Offline Demo Mode
+**Estado**: Completado
+
+**Implementado**:
+- Checkbox "Usar datos offline (modo demo)" en la UI
+- Carga de `data/sample_ethereum_transactions.json` en lugar de consultar la API
+- Timeout de Etherscan reducido de 15s a 8s
+- Script `test_debug_eth.py` para diagnóstico offline
+
+**Decisión estratégica**:
+- La demo del hackathon usará modo offline para garantizar reproducibilidad
+- En producción, la app consulta Etherscan en tiempo real
+
+**Aprendizajes**:
+- Etherscan puede tardar mucho o bloquear la IP temporalmente por rate limit
+- Un modo offline es esencial para demos en vivo sin depender de la red
+- Timeout agresivo evita que la UI se quede colgada
+
+---
+
+### ⚠️ P13 — Network Issue with Etherscan API
+**Estado**: Documentado (no bloqueante)
+
+**Problema**:
+- A partir del 24/09/2026, la conexión a `api.etherscan.io` desde la red local comenzó a dar timeout
+- El error es `ConnectTimeoutError`, no relacionado con la API key ni con el código
+- El DNS resuelve correctamente (varias IPs), pero la conexión TCP no se completa
+- Posible causa: rate limit por IP o bloqueo del ISP/router
+
+**Mitigación implementada**:
+- Modo offline con dataset previamente consultado
+- Timeout reducido a 8 segundos para evitar bloqueos largos
+- La demo del hackathon usará modo offline
+
+**Aprendizaje**:
+- Depender de APIs externas en una demo en vivo es riesgoso
+- Un modo offline es esencial para hackathons
+- Documentar limitaciones conocidas es parte del profesionalismo
+
 ---
 
 ## 🧠 Aprendizajes y notas
@@ -293,6 +247,7 @@ Desarrollar una herramienta open-source en Python para explorar actividad blockc
 - **Etherscan V2**: requiere `chainid`. Ethereum Mainnet = 1.
 - **Python 3.14**: funciona con el stack actual.
 - **UTF-8**: configurar VS Code para evitar problemas con acentos.
+- **Multi-chain**: el modelo `Transaction` y el grafo son agnósticos a la red.
 
 ---
 
