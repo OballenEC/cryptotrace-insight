@@ -13,6 +13,28 @@ CryptoTrace Insight es una herramienta de exploración y análisis de actividad 
 
 **No es** una wallet, no custodia fondos, no calcula impuestos y no determina criminalidad. Es una herramienta de **exploración transparente y educativa**.
 
+## 📸 Capturas
+
+### 🖥️ Interfaz principal
+![Pantalla principal](docs/screenshots/01-home.jpeg)
+
+### 📊 Análisis de Ethereum
+![Análisis Ethereum](docs/screenshots/02-ethereum-results.jpeg)
+
+### 🕸️ Grafo interactivo de transacciones
+![Grafo interactivo](docs/screenshots/03-graph-ethereum.jpeg)
+
+### 🔍 Hallazgos explicados
+![Hallazgos](docs/screenshots/04-findings.jpeg)
+
+### ⭐ Análisis de Stellar
+![Análisis Stellar](docs/screenshots/05-stellar-results.jpeg)
+
+### 🧪 Tests unitarios pasando
+![Tests](docs/screenshots/06-tests-passing.png)
+
+### 📜 Historial de desarrollo
+![Git history](docs/screenshots/07-git-history.png)
 ---
 
 ## ✨ Features
