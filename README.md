@@ -66,7 +66,7 @@ CryptoTrace Insight es una herramienta de exploración y análisis de actividad 
 ## 📦 Instalación
 
 ```bash
-git clone https://github.com/tu-usuario/cryptotrace-insight.git
+git clone https://github.com/OballenEC/cryptotrace-insight.git
 cd cryptotrace-insight
 python -m venv venv
 venv\Scripts\activate  # Windows
