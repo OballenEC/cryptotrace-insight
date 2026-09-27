@@ -29,6 +29,7 @@ htmlcov/
 *.log
 *.json
 !data/sample_ethereum_transactions.json
+!railway.json
 
 # Sistema operativo
 .DS_Store
